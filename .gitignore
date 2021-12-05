@@ -3,6 +3,6 @@ cifar-10-batches-py
 __pycache__
 saved_models
 test2.py
-3d_surface_file.h5
+
 NoNeeds
 3d_surface_file_ResNet20_NOSHCUT_128.h5
