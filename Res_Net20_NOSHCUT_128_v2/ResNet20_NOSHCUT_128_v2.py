@@ -69,7 +69,7 @@ def lr_schedule(epoch):
         lr *= 0.1
     return lr
 
-path=r'D:\Loss\ResNet20_NOSHCUT_128'
+path=r'D:\Loss\Res_Net20_NOSHCUT_128_v2'
 
 save_dir = os.path.join(path, 'saved_models')
 model_name = 'cifar10_ResNet20_NOSHCUT_128_{epoch:03d}.h5'

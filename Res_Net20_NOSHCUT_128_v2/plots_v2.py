@@ -7,7 +7,7 @@ import h5py
 import numpy as np
 import pandas as pd
 
-dataset = pd.read_csv("ResNet20_NOSHCUT_128_history_log.csv", delimiter=",")
+dataset = pd.read_csv("D:\Loss\Res_Net20_NOSHCUT_128_v2\ResNet20_NOSHCUT_128_history_log.csv", delimiter=",")
 
 fig, ax = plt.subplots()
 ax1 = ax.twinx()
@@ -17,15 +17,15 @@ ax1.plot(dataset['epoch'],dataset['Acc'], label='train_Acc',color='red',linestyl
 ax1.plot(dataset['epoch'],dataset['val_Acc'], label='val_Acc',color='red',linestyle='dashed')
 ax.set_ylabel('Loss')
 ax1.set_ylabel('Acc')
-ax1.legend(loc=2)
-ax.legend(loc=1)
+ax1.legend(loc=1)
+ax.legend(loc=2)
 plt.title('ResNet20_NOSHCUT_128')
-fig.savefig(fname='D:\Loss\ResNet20_NOSHCUT_128\images\loss_Acc_ResNet20_NOSHCUT_128.pdf',
+fig.savefig(fname='D:\Loss\Res_Net20_NOSHCUT_128_v2\images\loss_Acc_ResNet20_NOSHCUT_128.pdf',
             dpi=300, bbox_inches='tight', format='pdf')
 
 surf_name = "test_loss"
 
-with h5py.File(r'D:\Loss\ResNet20_NOSHCUT_128\3d_surface_file_ResNet20_NOSHCUT_128.h5','r') as f:
+with h5py.File(r'D:\Loss\Res_Net20_NOSHCUT_128_v2\3d_surface_file_ResNet20_NOSHCUT_128.h5','r') as f:
 
     Z_LIMIT = 50
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
@@ -34,15 +34,16 @@ with h5py.File(r'D:\Loss\ResNet20_NOSHCUT_128\3d_surface_file_ResNet20_NOSHCUT_1
     X, Y = np.meshgrid(x, y)
     Z = np.array(f[surf_name][:])
 
-    Z[Z > Z_LIMIT] = Z_LIMIT
-    Z = np.log(Z)
+    # Z[Z > Z_LIMIT] = Z_LIMIT
+    # Z = np.log(Z)
 
     ax.set_xlabel("x")
     ax.set_ylabel("y")
-    #ax.set_zlabel("f(x, y)")
+    ax.set_zlabel("f(x, y)")
     ax.plot_surface(X, Y, Z, linewidth=0, antialiased=True, cmap='summer')
+    ax.view_init(48, 44)
     plt.title('ResNet20_NOSHCUT')
-    fig.savefig(fname='D:\Loss\ResNet20_NOSHCUT_128\images\d3_surface_file_ResNet20_NOSHCUT_128.pdf',
+    fig.savefig(fname='D:\Loss\Res_Net20_NOSHCUT_128_v2\images\d3_surface_file_ResNet20_NOSHCUT_128.pdf',
                   dpi=300, bbox_inches='tight', format='pdf')
 
 
@@ -51,7 +52,7 @@ with h5py.File(r'D:\Loss\ResNet20_NOSHCUT_128\3d_surface_file_ResNet20_NOSHCUT_1
     CS = plt.contour(X, Y, Z, cmap='summer')
     plt.clabel(CS, inline=1, fontsize=8, colors='red')
     plt.title('ResNet20_NOSHCUT')
-    fig_2.savefig(fname='D:\Loss\ResNet20_NOSHCUT_128\images\D2_contor_plot_ResNet20_NOSHCUT_128.pdf',
+    fig_2.savefig(fname='D:\Loss\Res_Net20_NOSHCUT_128_v2\images\d2_contor_plot_ResNet20_NOSHCUT_128.pdf',
                   dpi=300, bbox_inches='tight', format='pdf')
 
 plt.show()
