@@ -1,4 +1,7 @@
+from __future__ import print_function
 from keras.models import load_model
+from keras import models
+from keras.models import Model
 import tensorflow_addons as tfa
 from keras import metrics
 from keras import losses
@@ -6,6 +9,7 @@ import tensorflow as tf
 import cifar10 as c
 import numpy as np
 import h5py
+import math
 import os
 import keras.utils
 import logging
@@ -13,7 +17,7 @@ from numpy import linalg as LA
 
 logging.disable(logging.WARNING)
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-np.random.seed(123)
+
 batch_size = 128
 epochs = 300
 num_classes = 10
@@ -25,8 +29,8 @@ y_test = c.load_cifar_10_data('cifar-10-batches-py')[5]
 label_names = c.load_cifar_10_data('cifar-10-batches-py')[6]
 
 
-x_train = x_train.astype('float32') / 255
-x_test = x_test.astype('float32') / 255
+x_train = x_train.astype('float64') / 255
+x_test = x_test.astype('float64') / 255
 
 subtract_pixel_mean = True
 if subtract_pixel_mean:
@@ -62,27 +66,48 @@ loss_fn = keras.losses.CategoricalCrossentropy(from_logits=False)
 opt = tf.keras.optimizers.Adam(beta_1=0.9, beta_2=0.999, epsilon=1e-07)
 metrica = keras.metrics.CategoricalAccuracy(name='Acc')
 
-def myloss(model):
-    output=model.predict(x_test)
-    output /= tf.reduce_sum(output, axis=1, keepdims=True)
-    epsilon = tf.convert_to_tensor(0.1, output.dtype.base_dtype)
-    output = tf.clip_by_value(output, epsilon, 1. - epsilon)
-    CrossEntropy = - tf.reduce_sum(y_test * tf.math.log(output), axis=1)
-    return tf.reduce_mean(CrossEntropy).numpy()
 
 saved_model=load_model(r'D:\Loss\ResNet56_NOSHCUT_128\saved_models\cifar10_ResNet56_NOSHCUT_128_300.h5')
 saved_model.compile(loss=loss_fn,optimizer=opt,metrics=metrica)
 
-# _, train_acc = saved_model.evaluate(train_dataset, verbose=1)
-# _, val_acc = saved_model.evaluate(val_dataset, verbose=1)
-#val_loss , test_acc = saved_model.evaluate(test_dataset, verbose=1)
-# print('Train_Acc: %.3f, Val_Acc: %.3f, Test_Acc: %.3f' % (train_acc, val_acc, test_acc))
+def direction(model):
+    #np.random.seed(133)
+    direction=[]
+    weights=model.get_weights()
+    random_dir=[np.random.normal(loc=0, scale=1, size=weight.shape) for weight in weights]
+    for weight, dir in zip(weights, random_dir):
+        if weight.ndim==4:
+            assert weight.shape==dir.shape
+            form=weight.shape
+            weight=weight.reshape(form[0]*form[1]*form[2], -1)
+            dir=dir.reshape(form[0]*form[1]*form[2], -1)
+            norm_weight=LA.norm(weight,axis=0)
+            norm_dir = LA.norm(dir, axis=0)
+            koef=norm_weight/(norm_dir+0.0000001)
+            normal_dir=dir*koef
+            normal_dir=normal_dir.reshape(form[0],form[1],form[2], -1)
+            direction.append(normal_dir)
+        elif weight.ndim==2:
+            assert weight.shape == dir.shape
+            norm_weight = LA.norm(weight, axis=0)
+            norm_dir = LA.norm(dir, axis=0)
+            koef = norm_weight /( norm_dir+0.0000001)
+            normal_dir = dir * koef
+            direction.append(normal_dir)
+        else:
+            dir.fill(0)
+            #dir=np.copy(weight)
+            direction.append(dir)
 
+    return direction
 
-def calulate_loss_landscape(model, directions):
+dx = direction(saved_model)
+dy = direction(saved_model)
+init_weights=saved_model.get_weights()
+
+def calulate_loss_landscape(model,init_weights,dx,dy):
     setup_surface_file()
     with h5py.File("./3d_surface_file_ResNet56_NOSHCUT_128.h5", 'r+') as f:
-
         xcoordinates = f['xcoordinates'][:]
         ycoordinates = f['ycoordinates'][:]
         losses = f["test_loss"][:]
@@ -92,34 +117,35 @@ def calulate_loss_landscape(model, directions):
 
         for count, ind in enumerate(inds):
             print("ind...%s" % ind)
-
             coord = coords[count]
-            print('wb',model.get_weights()[0][0][0][0])
-            model.set_weights(overwrite_weights(model, directions, coord))
-            print('wa', model.get_weights()[0][0][0][0])
-            #model.compile(loss=loss_fn, optimizer=opt, metrics=metrica)
-            #loss, acc = model.evaluate(test_dataset, verbose=1)
 
-            loss = myloss(model)
-            acc=1
-            #_, acc = model.evaluate(test_dataset, verbose=1)
+            new_weights=[]
+            for w, d0, d1 in zip(init_weights, dx, dy):
+                new_w =  w + coord[0] * d0 + coord[1] * d1
+                new_weights.append(new_w)
+            model.set_weights(new_weights)
+            y_pred = model.predict(test_dataset)
+            cce = tf.keras.losses.CategoricalCrossentropy()
+            loss = cce(y_test, y_pred).numpy()
+            acc = 1 - (np.sum(np.abs(y_pred - y_test))) / (2 * y_test.shape[0])
+            model.set_weights(init_weights)
+
             print(loss, acc)
+
             losses.ravel()[ind] = loss
             accuracies.ravel()[ind] = acc
 
-            print('Evaluating %d/%d  (%.1f%%)  coord=%s' % (ind+1, len(inds), 100.0 * (count+1) / len(inds), str(coord)))
+            print('Evaluating %d/%d  (%.1f%%)  coord=%s' % (
+            ind, len(inds), 100.0 * count / len(inds), str(coord)))
 
             f["test_loss"][:] = losses
             f["test_acc"][:] = accuracies
             f.flush()
 
+
 def setup_surface_file():
-    # xmin, xmax, xnum = -0.000005, 0.000005, 15
-    # ymin, ymax, ynum = -0.000005, 0.000005, 15
-
-    xmin, xmax, xnum = -1, 1, 10
-    ymin, ymax, ynum = -1, 1, 10
-
+    xmin, xmax, xnum = -1, 1, 30
+    ymin, ymax, ynum = -1, 1, 30
 
     surface_path = "./3d_surface_file_ResNet56_NOSHCUT_128.h5"
 
@@ -146,79 +172,23 @@ def setup_surface_file():
 
         return
 
+
 def get_indices(vals, xcoordinates, ycoordinates):
     inds = np.array(range(vals.size))
     inds = inds[vals.ravel() <= 0]
+
     xcoord_mesh, ycoord_mesh = np.meshgrid(xcoordinates, ycoordinates)
     s1 = xcoord_mesh.ravel()[inds]
     s2 = ycoord_mesh.ravel()[inds]
+
     return inds, np.c_[s1, s2]
 
-
-def overwrite_weights(model,directions,step):
-    new_weights=[]
-    dx = directions[0]
-    dy = directions[1]
-    changes = [d0 * step[0] + d1 * step[1] for (d0, d1) in zip(dx, dy)]
-    print('c',changes[0][0][0][0])
-    for (w, c) in zip( model.get_weights(), changes):
-        new_weights_w = w + c
-        new_weights.append(new_weights_w)
-    return new_weights
-
-def get_random_weights(weights):
-    direction=[]
-    for weight in weights:
-        form=np.random.normal(loc=0, scale=1, size=weight.shape)
-        direction.append(form)
-    return direction
-
-def direction_2(model):
-    weights=model.get_weights()
-    dir=get_random_weights(weights)
-    norm_dir=[]
-    assert (len(dir) == len(weights))
-    for d,w in zip(dir,weights):
-
-        assert (d.shape == w.shape)
-        if d.ndim == 1:
-            d.fill(0)
-            norm_dir.append(np.array(d))
-        else:
-            norm_dir_d=[]
-            for dd,ww in zip(d,w):
-                assert (dd.shape == ww.shape)
-                dd=dd*(LA.norm(ww)/(LA.norm(dd)+0.00000001))
-                norm_dir_d.append(dd)
-            norm_dir.append(np.array(norm_dir_d))
-    return norm_dir
-
-def directions(model):
-    dx=direction_2(model)
-    dy=direction_2(model)
-    return dx, dy
-
-calulate_loss_landscape(saved_model,directions(saved_model))
+calulate_loss_landscape(model=saved_model,init_weights=init_weights, dx=dx,dy=dy)
 
 
 
 
 
 
-
-def min_max(mass):
-    maxes_dx=[]
-    mimim_dx=[]
-    meann_dx=[]
-    for dx in mass:
-        maxes_dx.append(max(dx.ravel()))
-        mimim_dx.append(min(dx.ravel()))
-        meann_dx.append(np.mean(dx.ravel()))
-    max_dx=max(maxes_dx)
-    min_dx=min(mimim_dx)
-    mean_dx = np.mean(meann_dx)
-    return min_dx, max_dx, mean_dx
-
-# print(min_max(saved_model.get_weights()))
 
 

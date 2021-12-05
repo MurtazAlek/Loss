@@ -1,3 +1,4 @@
+from __future__ import print_function
 from keras.models import load_model
 from keras import models
 from keras.models import Model
@@ -28,8 +29,8 @@ y_test = c.load_cifar_10_data('cifar-10-batches-py')[5]
 label_names = c.load_cifar_10_data('cifar-10-batches-py')[6]
 
 
-x_train = x_train.astype('float32') / 255
-x_test = x_test.astype('float32') / 255
+x_train = x_train.astype('float64') / 255
+x_test = x_test.astype('float64') / 255
 
 subtract_pixel_mean = True
 if subtract_pixel_mean:
@@ -61,16 +62,16 @@ val_dataset = tf.data.Dataset.from_tensor_slices((x_val, y_val))
 val_dataset = val_dataset.shuffle(buffer_size=1024).batch(batch_size)
 
 loss_fn = keras.losses.CategoricalCrossentropy(from_logits=False)
-#loss_fn=tf.keras.losses.MeanSquaredError()
 #opt = tfa.optimizers.SGDW( weight_decay=0.0005, momentum=0.9, clipnorm=1)
 opt = tf.keras.optimizers.Adam(beta_1=0.9, beta_2=0.999, epsilon=1e-07)
 metrica = keras.metrics.CategoricalAccuracy(name='Acc')
 
 
-saved_model=load_model(r'D:\Loss\ResNet20_SHCUT_128\saved_models\cifar10_ResNet20_SHCUT_128_300.h5')
+saved_model=load_model(r'D:\Loss\ResNet20_SHCUT_128_v2\saved_models\cifar10_ResNet20v1_model.300.h5')
 saved_model.compile(loss=loss_fn,optimizer=opt,metrics=metrica)
 
 def direction(model):
+    #np.random.seed(133)
     direction=[]
     weights=model.get_weights()
     random_dir=[np.random.normal(loc=0, scale=1, size=weight.shape) for weight in weights]
@@ -100,25 +101,13 @@ def direction(model):
 
     return direction
 
-def loss(model):
-    output=model.predict(x_test)
-    output /= tf.reduce_sum(output, axis=1, keepdims=True)
-    epsilon = tf.convert_to_tensor(0.3, output.dtype.base_dtype)
-    output = tf.clip_by_value(output, epsilon, 1. - epsilon)
-    CrossEntropy = - tf.reduce_sum(y_test * tf.math.log(output), axis=1)
-    return tf.reduce_mean(CrossEntropy).numpy()
+dx = direction(saved_model)
+dy = direction(saved_model)
+init_weights=saved_model.get_weights()
 
-
-# train_loss, train_acc = saved_model.evaluate(train_dataset, verbose=1)
-# val_loss, val_acc = saved_model.evaluate(val_dataset, verbose=1)
-# test_loss, test_acc = saved_model.evaluate(test_dataset, verbose=1)
-# print('Train_Acc: %.3f, Val_Acc: %.3f, Test_Acc: %.3f' % (train_acc, val_acc, test_acc))
-# print('Train_loss: %.3f, Val_loss: %.3f, Test_loss: %.3f' % (train_loss, val_loss, test_loss))
-
-def calulate_loss_landscape(model):
+def calulate_loss_landscape(model,init_weights,dx,dy):
     setup_surface_file()
     with h5py.File("./3d_surface_file_ResNet20_SHCUT_128.h5", 'r+') as f:
-
         xcoordinates = f['xcoordinates'][:]
         ycoordinates = f['ycoordinates'][:]
         losses = f["test_loss"][:]
@@ -130,32 +119,16 @@ def calulate_loss_landscape(model):
             print("ind...%s" % ind)
             coord = coords[count]
 
-            beta = direction(model)
-            eta = direction(model)
-
-            current_weights=model.get_weights()
-            #print('bw', current_weights[0][0][0][0])
-            # layer_name = 'conv2d_20'
-            # intermediate_layer_model = Model(inputs=model.input, outputs=model.get_layer(layer_name).output)
-            # intermediate_output = intermediate_layer_model.predict(test_dataset)
-            # print('befo',intermediate_output[0][0][0])
-
-
             new_weights=[]
-            for weight, b,e in zip(current_weights, beta,eta):
-                new_weight = weight + b * coord[0] + e * coord[1]
-                new_weights.append(new_weight)
-
+            for w, d0, d1 in zip(init_weights, dx, dy):
+                new_w =  w + coord[0] * d0 + coord[1] * d1
+                new_weights.append(new_w)
             model.set_weights(new_weights)
-            model.compile(loss=loss_fn, optimizer=opt, metrics=metrica)
-
-            # layer_name = 'conv2d_20'
-            # intermediate_layer_model = Model(inputs=model.input, outputs=model.get_layer(layer_name).output)
-            # intermediate_output = intermediate_layer_model.predict(test_dataset)
-            #print('after',intermediate_output[0][0][0])
-
-            loss, acc = model.evaluate(test_dataset, verbose=1)
-
+            y_pred = model.predict(test_dataset)
+            cce = tf.keras.losses.CategoricalCrossentropy()
+            loss = cce(y_test, y_pred).numpy()
+            acc = 1 - (np.sum(np.abs(y_pred - y_test))) / (2 * y_test.shape[0])
+            model.set_weights(init_weights)
 
             print(loss, acc)
 
@@ -171,8 +144,8 @@ def calulate_loss_landscape(model):
 
 
 def setup_surface_file():
-    xmin, xmax, xnum = -1, 1, 10
-    ymin, ymax, ynum = -1, 1, 10
+    xmin, xmax, xnum = -1, 1, 30
+    ymin, ymax, ynum = -1, 1, 30
 
     surface_path = "./3d_surface_file_ResNet20_SHCUT_128.h5"
 
@@ -210,15 +183,8 @@ def get_indices(vals, xcoordinates, ycoordinates):
 
     return inds, np.c_[s1, s2]
 
-#calulate_loss_landscape(saved_model)
+calulate_loss_landscape(model=saved_model,init_weights=init_weights, dx=dx,dy=dy)
 
-# names = [weight.name for layer in saved_model.layers for weight in layer.weights]
-# weights = saved_model.get_weights()
-#
-# for name, weight in zip(names, weights):
-#     if weight.ndim==1:
-#         print(weight.shape)
-#         print(name, weight)
 
 
 

@@ -20,7 +20,7 @@ import logging
 logging.disable(logging.WARNING)
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
-batch_size = 128
+batch_size = 2000
 epochs = 300
 num_classes = 10
 
@@ -139,7 +139,7 @@ def resnet_v1(input_shape, depth, num_classes=10):
     return model
 model=resnet_v1(input_shape=input_shape,depth=20,num_classes=10)
 
-tf.keras.utils.plot_model(model, "ResNet20_SHCUT_128.png", show_shapes=True)
+tf.keras.utils.plot_model(model, "ResNet20_SHCUT_2000.png", show_shapes=True)
 
 loss_fn = keras.losses.CategoricalCrossentropy(from_logits=False)
 #opt = tfa.optimizers.SGDW(weight_decay=0.0005,momentum=0.9, nesterov=True, clipnorm=1.0)
@@ -157,7 +157,7 @@ filepath = os.path.join(save_dir, model_name)
 ls = LearningRateScheduler(lr_schedule)
 model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=filepath,save_weights_only=False,
                                                                monitor='val_accuracy',mode='max',save_best_only=False)
-history=tf.keras.callbacks.CSVLogger("ResNet20_SHCUT_128_history_log.csv", separator=",", append=False)
+history=tf.keras.callbacks.CSVLogger("ResNet20_SHCUT_2000_history_log.csv", separator=",", append=False)
 callback=[ls, model_checkpoint_callback, history]
 
 with tf.device('/device:GPU:0'):

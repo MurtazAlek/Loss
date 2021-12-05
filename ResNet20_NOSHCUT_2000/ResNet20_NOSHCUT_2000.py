@@ -16,7 +16,7 @@ import logging
 logging.disable(logging.WARNING)
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
-batch_size = 128
+batch_size = 2000
 epochs = 300
 num_classes = 10
 
@@ -69,10 +69,10 @@ def lr_schedule(epoch):
         lr *= 0.1
     return lr
 
-path=r'D:\Loss\Res_Net20_NOSHCUT_128_v2'
+path=r'D:\Loss\ResNet20_NOSHCUT_2000'
 
 save_dir = os.path.join(path, 'saved_models')
-model_name = 'cifar10_ResNet20_NOSHCUT_128_{epoch:03d}.h5'
+model_name = 'cifar10_ResNet20_NOSHCUT_2000_{epoch:03d}.h5'
 if not os.path.isdir(save_dir):
     os.makedirs(save_dir)
 filepath = os.path.join(save_dir, model_name)
@@ -81,7 +81,7 @@ filepath = os.path.join(save_dir, model_name)
 ls = LearningRateScheduler(lr_schedule)
 model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=filepath,save_weights_only=False,
                                                                monitor='val_accuracy',mode='max',save_best_only=False)
-history=tf.keras.callbacks.CSVLogger("ResNet20_NOSHCUT_128_history_log.csv", separator=",", append=False)
+history=tf.keras.callbacks.CSVLogger("ResNet20_NOSHCUT_2000_history_log.csv", separator=",", append=False)
 callback=[ls, model_checkpoint_callback, history]
 
 initializer = tf.keras.initializers.RandomNormal(mean=0., stddev=1.)
@@ -176,7 +176,7 @@ def ResNet20_NOSHCUT(input_shape=(32,32,3), classes=10):
 
 model=ResNet20_NOSHCUT(input_shape=(32,32,3),classes=10)
 
-tf.keras.utils.plot_model(model, "ResNet20_NOSHCUT_128.png", show_shapes=True)
+tf.keras.utils.plot_model(model, "ResNet20_NOSHCUT_2000.png", show_shapes=True)
 
 loss_fn = keras.losses.CategoricalCrossentropy(from_logits=False)
 #opt = tf.keras.optimizers.SGD(momentum=0.9)

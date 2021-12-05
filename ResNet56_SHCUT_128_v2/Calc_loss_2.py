@@ -67,7 +67,7 @@ opt = tf.keras.optimizers.Adam(beta_1=0.9, beta_2=0.999, epsilon=1e-07)
 metrica = keras.metrics.CategoricalAccuracy(name='Acc')
 
 
-saved_model=load_model(r'D:\Loss\ResNet20_SHCUT_128_v2\saved_models\cifar10_ResNet20v1_model.300.h5')
+saved_model=load_model(r'D:\Loss\ResNet56_SHCUT_128_v2\saved_models\cifar10_ResNet56v1_model.300.h5')
 saved_model.compile(loss=loss_fn,optimizer=opt,metrics=metrica)
 
 def direction(model):
@@ -107,7 +107,7 @@ init_weights=saved_model.get_weights()
 
 def calulate_loss_landscape(model,init_weights,dx,dy):
     setup_surface_file()
-    with h5py.File("./3d_surface_file_ResNet20_SHCUT_128.h5", 'r+') as f:
+    with h5py.File("./3d_surface_file_ResNet56_SHCUT_128.h5", 'r+') as f:
         xcoordinates = f['xcoordinates'][:]
         ycoordinates = f['ycoordinates'][:]
         losses = f["test_loss"][:]
@@ -147,15 +147,15 @@ def setup_surface_file():
     xmin, xmax, xnum = -1, 1, 30
     ymin, ymax, ynum = -1, 1, 30
 
-    surface_path = "./3d_surface_file_ResNet20_SHCUT_128.h5"
+    surface_path = "./3d_surface_file_ResNet56_SHCUT_128.h5"
 
     if os.path.isfile(surface_path):
-        print("%s is already set up" % "3d_surface_file_ResNet20_SHCUT_128.h5")
+        print("%s is already set up" % "3d_surface_file_ResNet56_SHCUT_128.h5")
 
         return
 
     with h5py.File(surface_path, 'a') as f:
-        print("create new 3d_surface_file_ResNet20_SHCUT_128.h5")
+        print("create new 3d_surface_file_ResNet56_SHCUT_128.h5")
 
         xcoordinates = np.linspace(xmin, xmax, xnum)
         f['xcoordinates'] = xcoordinates

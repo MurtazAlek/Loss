@@ -7,25 +7,25 @@ import h5py
 import numpy as np
 import pandas as pd
 
-dataset = pd.read_csv("D:\Loss\ResNet20_SHCUT_128_v2\ResNet20_SHCUT_128_history_log.csv", delimiter=",")
+dataset = pd.read_csv("D:\Loss\ResNet20_SHCUT_2000_v2\ResNet20_SHCUT_2000_history_log.csv", delimiter=",")
 
 fig, ax = plt.subplots()
 ax1 = ax.twinx()
-ax.plot(dataset['epoch'],dataset['loss'], label='train_loss',color='blue',linestyle='solid')
-ax.plot(dataset['epoch'],dataset['val_loss'], label='val_loss',color='blue',linestyle='dashed')
-ax1.plot(dataset['epoch'],dataset['Acc'], label='train_Acc',color='red',linestyle='solid')
-ax1.plot(dataset['epoch'],dataset['val_Acc'], label='val_Acc',color='red',linestyle='dashed')
+ax.plot(dataset['epoch'][7:],dataset['loss'][7:], label='train_loss',color='blue',linestyle='solid')
+ax.plot(dataset['epoch'][7:],dataset['val_loss'][7:], label='val_loss',color='blue',linestyle='dashed')
+ax1.plot(dataset['epoch'][7:],dataset['Acc'][7:], label='train_Acc',color='red',linestyle='solid')
+ax1.plot(dataset['epoch'][7:],dataset['val_Acc'][7:], label='val_Acc',color='red',linestyle='dashed')
 ax.set_ylabel('Loss')
 ax1.set_ylabel('Acc')
 ax1.legend(loc=1)
 ax.legend(loc=2)
-plt.title('ResNet20_SHCUT_128')
-fig.savefig(fname='D:\Loss\ResNet20_SHCUT_128_v2\images\loss_Acc_ResNet20_NOSHCUT_128.pdf',
+plt.title('ResNet20_SHCUT_2000')
+fig.savefig(fname='D:\Loss\ResNet20_SHCUT_2000_v2\images\loss_Acc_ResNet20_SHCUT_2000.pdf',
             dpi=300, bbox_inches='tight', format='pdf')
 
 surf_name = "test_loss"
 
-with h5py.File(r'D:\Loss\ResNet20_SHCUT_128_v2\3d_surface_file_ResNet20_SHCUT_128.h5','r') as f:
+with h5py.File(r'D:\Loss\ResNet20_SHCUT_2000_v2\3d_surface_file_ResNet20_SHCUT_2000.h5','r') as f:
 
     Z_LIMIT = 50
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
@@ -42,8 +42,8 @@ with h5py.File(r'D:\Loss\ResNet20_SHCUT_128_v2\3d_surface_file_ResNet20_SHCUT_12
     ax.set_zlabel("f(x, y)")
     ax.plot_surface(X, Y, Z, linewidth=0, antialiased=True, cmap='summer')
     ax.view_init(48, 44)
-    plt.title('ResNet20_SHCUT_128')
-    fig.savefig(fname='D:\Loss\ResNet20_SHCUT_128_v2\images\d3_surface_file_ResNet20_SHCUT_128.pdf',
+    plt.title('ResNet20_SHCUT_2000')
+    fig.savefig(fname='D:\Loss\ResNet20_SHCUT_2000_v2\images\d3_surface_file_ResNet20_SHCUT_2000.pdf',
                   dpi=300, bbox_inches='tight', format='pdf')
 
 
@@ -51,8 +51,8 @@ with h5py.File(r'D:\Loss\ResNet20_SHCUT_128_v2\3d_surface_file_ResNet20_SHCUT_12
     fig_2 = plt.figure()
     CS = plt.contour(X, Y, Z, cmap='summer')
     plt.clabel(CS, inline=1, fontsize=8, colors='red')
-    plt.title('ResNet20_SHCUT_128')
-    fig_2.savefig(fname='D:\Loss\ResNet20_SHCUT_128_v2\images\d2_contor_plot_ResNet20_SHCUT_128.pdf',
+    plt.title('ResNet20_SHCUT_2000')
+    fig_2.savefig(fname='D:\Loss\ResNet20_SHCUT_2000_v2\images\d2_contor_plot_ResNet20_SHCUT_2000.pdf',
                   dpi=300, bbox_inches='tight', format='pdf')
 
 plt.show()
