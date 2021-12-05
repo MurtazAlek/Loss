@@ -16,7 +16,7 @@ import logging
 logging.disable(logging.WARNING)
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
-batch_size = 256
+batch_size = 128
 epochs = 300
 num_classes = 10
 
@@ -60,7 +60,7 @@ val_dataset = tf.data.Dataset.from_tensor_slices((x_val, y_val))
 val_dataset = val_dataset.shuffle(buffer_size=1024).batch(batch_size)
 
 def lr_schedule(epoch):
-    lr = 0.1
+    lr = 0.01
     if epoch > 275:
         lr *= 0.001
     elif epoch > 225:
@@ -69,35 +69,33 @@ def lr_schedule(epoch):
         lr *= 0.1
     return lr
 
-path=r'D:\Loss\ResNet20_SHCUT_WD_128'
+path=r'D:\Loss\ResNet20_NOSHCUT_128'
 
 save_dir = os.path.join(path, 'saved_models')
-model_name = 'cifar10_ResNet20_SHCUT_model_{epoch:03d}.h5'
+model_name = 'cifar10_ResNet20_NOSHCUT_128_{epoch:03d}.h5'
 if not os.path.isdir(save_dir):
     os.makedirs(save_dir)
 filepath = os.path.join(save_dir, model_name)
 
 
 ls = LearningRateScheduler(lr_schedule)
-es = tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', mode='max', patience=3)
 model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=filepath,save_weights_only=False,
                                                                monitor='val_accuracy',mode='max',save_best_only=False)
-lr_reducer = tf.keras.callbacks.ReduceLROnPlateau(factor=np.sqrt(0.1), cooldown=0,patience=5,min_lr=0.5e-6)
-history=tf.keras.callbacks.CSVLogger("ResNet20_model_history_log.csv", separator=",", append=False)
-callback=[ls,es, model_checkpoint_callback, lr_reducer, history]
+history=tf.keras.callbacks.CSVLogger("ResNet20_NOSHCUT_128_history_log.csv", separator=",", append=False)
+callback=[ls, model_checkpoint_callback, history]
 
 initializer = tf.keras.initializers.RandomNormal(mean=0., stddev=1.)
 
 def basic_blokc_NOshcut(X,F, s):
     # 1 s=2
-    X = Conv2D(filters=F, kernel_size=(3, 3), strides=(s, s), padding='same', kernel_initializer=initializer, use_bias=False)(X)
+    X = Conv2D(filters=F, kernel_size=(3, 3), strides=(s, s), padding='same', kernel_initializer=initializer,  use_bias=False)(X)
     X = BatchNormalization(axis=3)(X)
     X = Activation('relu')(X)
     X = Conv2D(filters=F, kernel_size=(3, 3), strides=(1, 1), padding='same', kernel_initializer=initializer, use_bias=False)(X)
     X = BatchNormalization(axis=3)(X)
     X = Activation('relu')(X)
     # 2
-    X = Conv2D(filters=F, kernel_size=(3, 3), strides=(1, 1), padding='same', kernel_initializer=initializer, use_bias=False)(X)
+    X = Conv2D(filters=F, kernel_size=(3, 3), strides=(1, 1), padding='same', kernel_initializer=initializer,  use_bias=False)(X)
     X = BatchNormalization(axis=3)(X)
     X = Activation('relu')(X)
     X = Conv2D(filters=F, kernel_size=(3, 3), strides=(1, 1), padding='same', kernel_initializer=initializer, use_bias=False)(X)
@@ -154,7 +152,7 @@ def ResNet20_SHCUT(input_shape=(32,32,3), classes=10):
 
     X = AveragePooling2D((2, 2), name='avg_pool')(X)
     X = Flatten()(X)
-    X = Dense(classes, activation='softmax', kernel_initializer=initializer, use_bias=True)(X)
+    X = Dense(classes, activation='softmax',  use_bias=True)(X)
 
     model = Model(inputs=X_input, outputs=X, name='ResNet20_SHCUT')
     return model
@@ -171,17 +169,19 @@ def ResNet20_NOSHCUT(input_shape=(32,32,3), classes=10):
 
     X = AveragePooling2D((2, 2), name='avg_pool')(X)
     X = Flatten()(X)
-    X = Dense(classes, activation='softmax', kernel_initializer=initializer, use_bias=True)(X)
+    X = Dense(classes, activation='softmax',  use_bias=True)(X)
 
     model = Model(inputs=X_input, outputs=X, name='ResNet20_NOSHCUT')
     return model
 
-model=ResNet20_SHCUT(input_shape=(32,32,3),classes=10)
+model=ResNet20_NOSHCUT(input_shape=(32,32,3),classes=10)
 
-tf.keras.utils.plot_model(model, "ResNet20_SHCUT_WD_128.png", show_shapes=True)
+tf.keras.utils.plot_model(model, "ResNet20_NOSHCUT_128.png", show_shapes=True)
 
 loss_fn = keras.losses.CategoricalCrossentropy(from_logits=False)
-opt = tfa.optimizers.SGDW(weight_decay=0.0005,momentum=0.9)
+#opt = tf.keras.optimizers.SGD(momentum=0.9)
+#opt = tfa.optimizers.SGDW(weight_decay=0.0005,momentum=0.9)
+opt = tf.keras.optimizers.Adam(beta_1=0.9, beta_2=0.999, epsilon=1e-07)
 metrica = keras.metrics.CategoricalAccuracy(name='Acc')
 
 with tf.device('/device:GPU:0'):
