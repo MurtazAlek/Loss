@@ -20,7 +20,7 @@ ax1.set_ylabel('Acc')
 ax1.legend(loc=1)
 ax.legend(loc=2)
 plt.title('ResNet20_NOSHCUT_128')
-fig.savefig(fname='D:\Loss\Res_Net20_NOSHCUT_128_v2\images\loss_Acc_ResNet20_NOSHCUT_128.pdf',
+fig.savefig(fname='D:\Loss\Res_Net20_NOSHCUT_128_v2\images\loss_Acc_ResNet20_NOSHCUT_128.png',
             dpi=300, bbox_inches='tight', format='pdf')
 
 surf_name = "test_loss"
@@ -43,7 +43,7 @@ with h5py.File(r'D:\Loss\Res_Net20_NOSHCUT_128_v2\3d_surface_file_ResNet20_NOSHC
     ax.plot_surface(X, Y, Z, linewidth=0, antialiased=True, cmap='summer')
     ax.view_init(48, 44)
     plt.title('ResNet20_NOSHCUT')
-    fig.savefig(fname='D:\Loss\Res_Net20_NOSHCUT_128_v2\images\d3_surface_file_ResNet20_NOSHCUT_128.pdf',
+    fig.savefig(fname='D:\Loss\Res_Net20_NOSHCUT_128_v2\images\d3_surface_file_ResNet20_NOSHCUT_128.png',
                   dpi=300, bbox_inches='tight', format='pdf')
 
 
@@ -52,7 +52,7 @@ with h5py.File(r'D:\Loss\Res_Net20_NOSHCUT_128_v2\3d_surface_file_ResNet20_NOSHC
     CS = plt.contour(X, Y, Z, cmap='summer')
     plt.clabel(CS, inline=1, fontsize=8, colors='red')
     plt.title('ResNet20_NOSHCUT')
-    fig_2.savefig(fname='D:\Loss\Res_Net20_NOSHCUT_128_v2\images\d2_contor_plot_ResNet20_NOSHCUT_128.pdf',
+    fig_2.savefig(fname='D:\Loss\Res_Net20_NOSHCUT_128_v2\images\d2_contor_plot_ResNet20_NOSHCUT_128.png',
                   dpi=300, bbox_inches='tight', format='pdf')
 
 plt.show()
