@@ -41,6 +41,8 @@ An important factor to take into account, is that filter normalization is applie
 ####  Filter Normalized Plots
 There are countur plots the loss function using random filter-normalized directions. Although, there are sharpness differences between the large and small batch minima.
 
+2D countur plots
+
 ![ResNet20_NOSHCUT_128](https://github.com/MurtazAlek/Loss/blob/master/Res_Net20_NOSHCUT_128_v2/images/d2_contor_plot_ResNet20_NOSHCUT_128.pdf)
 
 ![ResNet20_NOSHCUT_2000](https://github.com/MurtazAlek/Loss/blob/master/ResNet20_NOSHCUT_2000/images/d2_contor_plot_ResNet20_NOSHCUT_2000.pdf)
@@ -48,6 +50,18 @@ There are countur plots the loss function using random filter-normalized directi
 ![ResNet20_SHCUT_128](https://github.com/MurtazAlek/Loss/blob/master/ResNet20_SHCUT_128_v2/images/d2_contor_plot_ResNet20_SHCUT_128.pdf)
 
 ![ResNet20_SHCUT_2000](https://github.com/MurtazAlek/Loss/blob/master/ResNet20_SHCUT_2000_v2/images/d2_contor_plot_ResNet20_SHCUT_2000.pdf)
+
+3D plots
+
+![ResNet20_NOSHCUT_128](https://github.com/MurtazAlek/Loss/blob/master/Res_Net20_NOSHCUT_128_v2/images/d3_surface_file_ResNet20_NOSHCUT_128.pdf)
+
+![ResNet20_NOSHCUT_2000](https://github.com/MurtazAlek/Loss/blob/master/ResNet20_NOSHCUT_2000/images/d3_surface_file_ResNet20_NOSHCUT_2000.pdf)
+
+![ResNet20_SHCUT_128](https://github.com/MurtazAlek/Loss/blob/master/ResNet20_SHCUT_128_v2/images/d3_surface_file_ResNet20_SHCUT_128.pdf)
+
+![ResNet20_SHCUT_2000](https://github.com/MurtazAlek/Loss/blob/master/ResNet20_SHCUT_2000_v2/images/d3_surface_file_ResNet20_SHCUT_2000.pdf)
+
+
 
 Another interesting result is that the ability to find global minimizers to neural loss functions is related to the architecture and to the initial training parameters.
 
