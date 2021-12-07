@@ -130,7 +130,7 @@ ax.plot(alphas, Loss_BS(alphas=alphas,model=saved_model_big,weights=weight_big,t
         label='test_loss_2000',color='red',linestyle='dashed')
 ax.set_ylabel('Loss')
 ax.legend(loc=2)
-fig.savefig(fname='D:\Loss\Big_BS_vs_Small_BS.png', dpi=300, bbox_inches='tight', format='pdf')
+fig.savefig(fname='D:\Loss\Big_BS_vs_Small_BS.pdf', dpi=300, bbox_inches='tight', format='pdf')
 plt.show()
 
 
