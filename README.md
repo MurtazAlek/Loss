@@ -40,6 +40,9 @@ After they divided the vector d by the norm of d, and multiplied it by the norm 
 An important factor to take into account, is that filter normalization is applied to both the Convolutional Layers and to the Fully Connected ones.
 ####  Filter Normalized Plots
 There are countur plots the loss function using random filter-normalized directions. Although, there are sharpness differences between the large and small batch minima.
+<br />
+1D plot for ResNet20_NOSHCUT
+![ResNet20_NOSHCUT](https://github.com/MurtazAlek/Loss/blob/master/Big_BS_vs_Small_BS.pdf)
 
 2D countur plots
 
