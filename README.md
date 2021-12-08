@@ -26,6 +26,8 @@ These networks contain many parameters, thus, their loss functions are high-dime
 
 ![equation](https://latex.codecogs.com/svg.image?f(\alpha&space;,\beta&space;)=L(Q^{*}-\alpha&space;\delta-\beta&space;\eta))
 
+![random_dir](https://github.com/MurtazAlek/Loss/blob/master/random_dir.png)
+
 
 The authors in the study use surface plots of the form described above, using a pair of vector - δ and η, that are sampled from a random Gaussian distribution.
 <br />
