@@ -97,7 +97,6 @@ The networks were trained using:
 
 ### Personal impression
 
-It is interesting that the influence of the difference in architecture and parameters is beautifully reflected in the shape of the visualized loss function . I understand that the loss function becomes a non-convex function in a model where learning does not proceed, but in that case, it seems necessary to think about how to make it a convex function for each model 
-
+It is interesting that the influence of the difference in architecture and parameters is beautifully reflected in the shape of the visualized loss function . 
 
 
