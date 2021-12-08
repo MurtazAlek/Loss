@@ -16,6 +16,7 @@ The main contributions of the work are the following:
 + Adding skip connections prevents this change to a chaotic landscape
 
 ### The Basics of Loss Function Visualization <br />
+
 First of all the authors start with the assertion that Neural Networks are trained on a corpus of feature vectors, for example images, 
 and their corresponding labels __(CIFAR10)__. The training is performed by minimizing the loss, and measuring how well our weights predict a label from a data sample. 
 These networks contain many parameters, thus, their loss functions are high-dimensional. <br />
@@ -42,6 +43,8 @@ An important factor to take into account, is that filter normalization is applie
 There are countur plots the loss function using random filter-normalized directions. Although, there are sharpness differences between the large and small batch minima.
 <br />
 1D plot for ResNet20_NOSHCUT
+
+![equation](https://latex.codecogs.com/svg.image?L(\Theta&space;)=(1-\alpha&space;)*\Theta&space;&space;&plus;&space;\alpha&space;*\Theta&space;{^*})
 
 ![ResNet20_NOSHCUT](https://github.com/MurtazAlek/Loss/blob/master/Big_BS_vs_Small_BS.pdf)
 
